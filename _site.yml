@@ -1,9 +1,14 @@
 name: "ISSS608_lesson1"
-title: "Evil pro course"
+title: "ISSS608_Visualisation"
 description: |
-  Evil pro course
+  ISSS608_Visualisation
 output_dir: "_site"
 navbar:
+  left:
+    - text: "Take-home Exercise"
+      menu:
+      - text: "Take-home Exercise 1"
+        href: "TH_EX/TH_EX1.html"
   right:
     - text: "Home"
       href: index.html

@@ -1,0 +1,105 @@
+---
+title: "Take home exercise"
+description: |
+ Take home exercise 01
+author:
+  - name: Li Minqi 
+    url: https://www.linkedin.com/in/minqi-li/
+    affiliation: School of Computing and Information System
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+# Overview
+
+In this take-home exercise, appropriate static statistical graphics methods are used to reveal the demographic of the city of Engagement, Ohio USA. 
+
+The data should be processed by using appropriate tidyverse family of packages and the statistical graphics must be prepared using ggphot2 and its extensions. 
+
+# Getting Started
+
+Before we get started, it is important for us to ensure that the required R packages have been installed. If yes, we will load the R packages. If they have yet to be installed, we will install the R packages and load them onto R environment.
+
+The chunk code below will do the trick.
+
+```{r}
+packages = c('tidyverse')
+
+for(p in packages){
+  if(!require(p,character.only= T)){
+    install.packages(p)
+  }
+  library(p,character.only=T)
+}
+```
+
+# Importing Data
+
+The code chunk below import *Participants.csv* from the data folder into R by using [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) of [**readr**](https://readr.tidyverse.org/) and save it as an tibble data frame called *participant_data*.
+
+```{r}
+participant_data <- read_csv("data/Participants.csv")
+```
+
+# A Simple Bar Chart
+The code chunk below plot a bar chart by using geom_bar() of ggplot2. It shows that the number of people with kids is much lesser than the number of people without a kid. The fertility rate is low.
+
+```{r}
+ggplot(data=participant_data,
+       aes(x = haveKids)) +
+  geom_bar()
+
+```
+
+From the bar chart below, we can tell that people with higher education, will be less likely to have a child. 
+
+```{r}
+participant_data$educationLevel <- factor(participant_data$educationLevel,levels = c("Graduate", "Bachelors", "HighSchoolOrCollege","Low"))
+ggplot(data=participant_data,
+aes(x=educationLevel,fill = haveKids)) +
+geom_bar(position = "fill")
+
+```
+
+According to the bar chart below, within the sample, majority of the people have high school and college as their highest education level
+
+```{r}
+ggplot(data=participant_data,
+       aes(x = educationLevel)) +
+  geom_bar() + coord_flip()
+ 
+
+```
+
+The code chunk below plot a bar chart by using geom_density() of ggplot2. People with higher education level will have higher chance to feel happy if they do not have kid(s). 
+On the other hand, people with low education level will have higher chance to feel happy if they have kid(s).
+
+```{r}
+
+ggplot(data=participant_data,
+aes(x=joviality,colour = haveKids)) +
+geom_density() +
+facet_wrap(~ educationLevel)
+
+```
+
+People at the age in between of 50 to 60, feel less happier than people at other ages.  
+
+```{r}
+condition<- cut(participant_data$joviality, breaks = c(0,0.2,0.4,0.6,0.8,1), labels = c("Strongly Sad","Sad","Neutral","Happy","Strongly Happy"))
+
+ggplot(data=participant_data, aes(fill=condition, x=age)) + 
+    geom_histogram(position="fill", bins=10)
+```
+
+
+
+
+
