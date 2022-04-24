@@ -96,7 +96,8 @@ People at the age in between of 50 to 60, feel less happier than people at other
 condition<- cut(participant_data$joviality, breaks = c(0,0.2,0.4,0.6,0.8,1), labels = c("Strongly Sad","Sad","Neutral","Happy","Strongly Happy"))
 
 ggplot(data=participant_data, aes(fill=condition, x=age)) + 
-    geom_histogram(position="fill", bins=10)
+    geom_histogram(position="fill", bins=10)+
+scale_fill_brewer(palette = "Blues", name = "Joviality VS age")
 ```
 
 
