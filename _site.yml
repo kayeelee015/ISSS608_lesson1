@@ -9,6 +9,8 @@ navbar:
       menu:
       - text: "Take-home Exercise 1"
         href: "TH_EX/TH_EX1.html"
+      - text: "Take-home Exercise 2"
+        href: "TH_EX/TH_EX2.html"
   right:
     - text: "Home"
       href: index.html
