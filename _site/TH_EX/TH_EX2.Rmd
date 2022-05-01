@@ -59,7 +59,7 @@ participant_data["joviality_group"] = cut(participant_data$joviality, c(0,0.2,0.
 participant_data
 ```
 
-The below codes prepare the number of particpants of different groups for further visualization
+The below codes prepare the number of participants of different groups for further visualization
 
 ```{r}
 t6=table(participant_data$householdSize)
@@ -111,6 +111,44 @@ ggplot(data= participant_data,
 From the bar chart above, we can find that the maximum size of household in the town is 3 and all families fall under this group have kid. The highest quantity of the type of family structure in the town is "married but without kid".
 
 # 4.2 HaveKids Distribution
+
+In order to generate a direct view of fertility rate, author use pie chart again to demonstrate the comparison as below. 
+
+```{r}
+
+ggplot(t7,aes(x="", y=Freq, fill=Var1))+
+  geom_bar(width = 1, stat = "identity")+
+  coord_polar("y", start=0)+
+  scale_fill_brewer(palette="Spectral")+
+  ggtitle("HaveKids Distribution")+
+  labs(fill='HaveKids')+
+  xlab("") + 
+  ylab("Participants")
+```
+
+According to the pie chart above, it is fine to choose this method to compare the portion of number of households with kid and number of households without kid. The different is quite significant. 
+
+However, the number indicated on the chart is a bit confusing, since they are neither the percentage nor the quantity of participants. Regarding this, I would suggest to convert the number into percentage, so that we could have a better view of comparison.
+
+```{r}
+df <- participant_data %>% 
+  group_by(haveKids) %>% # Variable to be transformed
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc))
+ggplot(df,aes(x="", y=perc, fill=haveKids))+
+  geom_bar(width = 1, stat = "identity")+
+  coord_polar("y", start=0)+
+  scale_fill_brewer(palette="Spectral")+
+  ggtitle("HaveKids Distribution")+
+  labs(fill='HaveKids')+
+  xlab("") + 
+  ylab("Participants")+
+  geom_text(aes(label = labels),
+            position = position_stack(vjust = 0.5))
+```
 
 # 4.3 Education Level Distribution
 
