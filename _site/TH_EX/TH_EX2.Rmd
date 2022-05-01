@@ -19,12 +19,101 @@ knitr::opts_chunk$set(echo = TRUE,
 ```
 
 # 1 Overview
+This take-home exercise is extended from take-home exercise 1 which reveal the demographic of the city of Engagement, Ohio USA by applying the skills learnt from lesson 1.
+
+In this exercise,we will select and learnt from one of the take-home exercise 1 prepared by our classmates. Both highlight and lowlight will be discuss in this article. 
+
 # 2 Getting Start
-# 3 Importing Data
+Before we get started, it is important for us to ensure that the required R packages have been installed. If yes, we will load the R packages. If they have yet to be installed, we will install the R packages and load them onto R environment.
+
+The chunk code below will do the trick.
+
+```{r}
+packages = c('tidyverse')
+
+for(p in packages){
+  if(!require(p,character.only= T)){
+    install.packages(p)
+  }
+  library(p,character.only=T)
+}
+```
+
+# 3.1 Importing Data
+
+This article will use the same data as take home exercise 1 where by the code chunk below import *Participants.csv* from the data folder into R by using [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) of [**readr**](https://readr.tidyverse.org/) and save it as an tibble data frame called *participant_data*. Participant_data is provided by [**VAST Challenge 2022**](https://vast-challenge.github.io/2022/)
+
+```{r}
+participant_data <- read_csv("data/Participants.csv")
+```
+
+# 3.2 Data wraping
+
+We group the age data into 4 groups including “18-28”, “29-38”, “39-49” and “50-60”. Also, we group joviality data into 4 groups “0.2-0.4”, “0.4-0.6”, “0.6-0.8” and “0.8-1.0”.
+
+```{r}
+participant_data["age_group"] = cut(participant_data$age, c(18,29,39,50,60),
+                                    c("18-28","29-38","39-49","50-60"), include.lowest=TRUE)
+participant_data["joviality_group"] = cut(participant_data$joviality, c(0,0.2,0.4,0.6,0.8,1), 
+                                          c("0-0.2", "0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"), include.lowest=TRUE)
+participant_data
+```
+
+The below codes prepare the number of particpants of different groups for further visualization
+
+```{r}
+t6=table(participant_data$householdSize)
+t7=table(participant_data$haveKids)
+t9=table(participant_data$educationLevel)
+t10=table(participant_data$interestGroup)
+
+t6=as.data.frame(t6)
+t7=as.data.frame(t7)
+t9=as.data.frame(t9)
+```
+
 # 4 Comparision
+This session was written according to the visualization analysis from [**take home exercise 1 **](https://isss-608-junqiuni.netlify.app/takehome_ex/takehome_ex01.html). Author mainly used two types of graph (pie chart and stacked bar chart) to complete the analysis. Author also attached the proposed design which was clearly and nicely illustrated the process of parsing. However, pie chart is not the best option to analyse the distribution. Here are some reasons:
+1. Quantity represented by slices, but humans are not particularly good at estimating quantity from angles.
+2. It is not easy to match the labels and the slices.
+3. Small percentages are tricky to show. 
+
 # 4.1 Househod Size Distribution
+
+Author used pie chart to analysis the household size distribution as shown below. 
+
+```{r}
+ggplot(t6,aes(x="", y=Freq, fill=Var1))+
+  geom_bar(width = 1, stat = "identity")+
+  coord_polar("y", start=0)
+```
+As we can see above, there are not significant difference among the three groups. Secondly, there is no indication on the amount and figure for each group. Lastly, the name of the graph is not given. 
+
+In view of this, I would suggest to use bar chart instead. Moreover, we could also take the factor of "havekid" into consideration.
+
+```{r}
+ggplot(data= participant_data,
+       aes(x= householdSize,
+           fill = haveKids)) +
+  geom_bar()+
+  ylim(0, 400) +
+  geom_text(stat = 'count',
+           aes(label= stat(count)), 
+           vjust= -0.5, 
+           size= 3) +
+  labs(title = 'Household Size of the Residents', y= 'No of\nResidents') +
+  theme(axis.title.y= element_text(angle=0), 
+        axis.ticks.x= element_blank(),
+        panel.background= element_blank(), 
+        axis.line= element_line(color= 'grey'))
+```
+
+From the bar chart above, we can find that the maximum size of household in the town is 3 and all families fall under this group have kid. The highest quantity of the type of family structure in the town is "married but without kid".
+
 # 4.2 HaveKids Distribution
+
 # 4.3 Education Level Distribution
+
 # 4.4 Factors that impact level of joviality 
 
 
