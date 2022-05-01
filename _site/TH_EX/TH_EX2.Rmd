@@ -152,6 +152,22 @@ ggplot(df,aes(x="", y=perc, fill=haveKids))+
 
 # 4.3 Education Level Distribution
 
+In this section, author continuously used pie chart for distribution. However, it is hard to compare with a pie chart, especially the number of bachelors and the number of graduate which are closed. Therefore, bar chart will be more appropriate. 
+
+```{r}
+participant_data %>%
+  mutate(Education= fct_infreq(educationLevel)) %>%
+  ggplot(aes(x= Education)) +
+  geom_bar(fill= '#6897bb') +
+  geom_text(stat = 'count',
+           aes(label= paste0(stat(count), ', ', 
+                             round(stat(count)/sum(stat(count))*100, 
+                             1), '%')), vjust= -0.5, size= 3) +
+  labs(y= 'No. of\nResidents', title = "Distribution of Residents' Education Level") +
+  theme(axis.title.y= element_text(angle=0), axis.ticks.x= element_blank(),
+        panel.background= element_blank(), axis.line= element_line(color= 'grey'))
+```
+
 # 4.4 Factors that impact level of joviality 
 
 
