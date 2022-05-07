@@ -29,7 +29,7 @@ Before we get started, it is important for us to ensure that the required R pack
 The chunk code below will do the trick.
 
 ```{r}
-packages = c('tidyverse', 'knitr', 'ggdist', 'scales', 'grid', 'gridExtra','formattable', 'patchwork')
+packages = c('tidyverse', 'knitr', 'ggdist', 'scales', 'grid', 'gridExtra','formattable', 'patchwork', 'shiny')
 
 for(p in packages){
   if(!require(p,character.only= T)){
