@@ -1,0 +1,205 @@
+---
+title: "Take-home exercise2"
+description: |
+   Peer learning: an analysis on the demographic of the city of Engagement, Ohio USA (VAST Challenge 2022).
+author:
+  - name: Li Minqi 
+    url: https://www.linkedin.com/in/minqi-li/
+    affiliation: School of Computing and Information System
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+# 1 Overview
+This take-home exercise is extended from take-home exercise 1 which reveal the demographic of the city of Engagement, Ohio USA by applying the skills learnt from lesson 1.
+
+In this exercise,we will select and learnt from one of the take-home exercise 1 prepared by our classmates. Both highlight and lowlight will be discuss in this article. 
+
+# 2 Getting Start
+Before we get started, it is important for us to ensure that the required R packages have been installed. If yes, we will load the R packages. If they have yet to be installed, we will install the R packages and load them onto R environment.
+
+The chunk code below will do the trick.
+
+```{r}
+packages = c('tidyverse', 'knitr', 'ggdist', 'scales', 'grid', 'gridExtra','formattable', 'patchwork', 'shiny')
+
+for(p in packages){
+  if(!require(p,character.only= T)){
+    install.packages(p)
+  }
+  library(p,character.only=T)
+}
+```
+
+# 3.1 Importing Data
+
+This article will use the same data as take home exercise 1 where by the code chunk below import *Participants.csv* from the data folder into R by using [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) of [**readr**](https://readr.tidyverse.org/) and save it as an tibble data frame called *participant_data*. Participant_data is provided by [**VAST Challenge 2022**](https://vast-challenge.github.io/2022/)
+
+```{r}
+participant_data <- read_csv("data/Participants.csv")
+```
+
+# 3.2 Data wraping
+
+We group the age data into 4 groups including “18-28”, “29-38”, “39-49” and “50-60”. Also, we group joviality data into 4 groups “0.2-0.4”, “0.4-0.6”, “0.6-0.8” and “0.8-1.0”.
+
+```{r}
+participant_data["age_group"] = cut(participant_data$age, c(18,29,39,50,60),
+                                    c("18-28","29-38","39-49","50-60"), include.lowest=TRUE)
+participant_data["joviality_group"] = cut(participant_data$joviality, c(0,0.2,0.4,0.6,0.8,1), 
+                                          c("0-0.2", "0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"), include.lowest=TRUE)
+participant_data
+```
+
+The below codes prepare the number of participants of different groups for further visualization
+
+```{r}
+t6=table(participant_data$householdSize)
+t7=table(participant_data$haveKids)
+t9=table(participant_data$educationLevel)
+t10=table(participant_data$interestGroup)
+
+t6=as.data.frame(t6)
+t7=as.data.frame(t7)
+t9=as.data.frame(t9)
+```
+
+# 4 Comparision
+This session was written according to the visualization analysis from [**take home exercise 1 **](https://isss-608-junqiuni.netlify.app/takehome_ex/takehome_ex01.html). Author mainly used two types of graph (pie chart and stacked bar chart) to complete the analysis. Author also attached the proposed design which was clearly and nicely illustrated the process of parsing. However, pie chart is not the best option to analyse the distribution. Here are some reasons:
+1. Quantity represented by slices, but humans are not particularly good at estimating quantity from angles.
+2. It is not easy to match the labels and the slices.
+3. Small percentages are tricky to show. 
+
+# 4.1 Househod Size Distribution
+
+Author used pie chart to analysis the household size distribution as shown below. 
+
+```{r}
+ggplot(t6,aes(x="", y=Freq, fill=Var1))+
+  geom_bar(width = 1, stat = "identity")+
+  coord_polar("y", start=0)
+```
+As we can see above, there are not significant difference among the three groups. Secondly, there is no indication on the amount and figure for each group. Lastly, the name of the graph is not given. 
+
+In view of this, I would suggest to use bar chart instead. Moreover, we could also take the factor of "havekid" into consideration.
+
+```{r}
+ggplot(data= participant_data,
+       aes(x= householdSize,
+           fill = haveKids)) +
+  geom_bar()+
+  ylim(0, 400) +
+  geom_text(stat = 'count',
+           aes(label= stat(count)), 
+           vjust= -0.5, 
+           size= 3) +
+  labs(title = 'Household Size of the Residents', y= 'No of\nResidents') +
+  theme(axis.title.y= element_text(angle=0), 
+        axis.ticks.x= element_blank(),
+        panel.background= element_blank(), 
+        axis.line= element_line(color= 'grey'))
+```
+
+From the bar chart above, we can find that the maximum size of household in the town is 3 and all families fall under this group have kid. The highest quantity of the type of family structure in the town is "married but without kid".
+
+# 4.2 HaveKids Distribution
+
+In order to generate a direct view of fertility rate, author use pie chart again to demonstrate the comparison as below. 
+
+```{r}
+
+ggplot(t7,aes(x="", y=Freq, fill=Var1))+
+  geom_bar(width = 1, stat = "identity")+
+  coord_polar("y", start=0)+
+  scale_fill_brewer(palette="Spectral")+
+  ggtitle("HaveKids Distribution")+
+  labs(fill='HaveKids')+
+  xlab("") + 
+  ylab("Participants")
+```
+
+According to the pie chart above, it is fine to choose this method to compare the portion of number of households with kid and number of households without kid. The different is quite significant. 
+
+However, the number indicated on the chart is a bit confusing, since they are neither the percentage nor the quantity of participants. Regarding this, I would suggest to convert the number into percentage, so that we could have a better view of comparison.
+
+```{r}
+df <- participant_data %>% 
+  group_by(haveKids) %>% # Variable to be transformed
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc))
+ggplot(df,aes(x="", y=perc, fill=haveKids))+
+  geom_bar(width = 1, stat = "identity")+
+  coord_polar("y", start=0)+
+  scale_fill_brewer(palette="Spectral")+
+  ggtitle("HaveKids Distribution")+
+  labs(fill='HaveKids')+
+  xlab("") + 
+  ylab("Participants")+
+  geom_text(aes(label = labels),
+            position = position_stack(vjust = 0.5))
+```
+
+# 4.3 Education Level Distribution
+
+In this section, author continuously used pie chart for distribution. However, it is hard to compare with a pie chart, especially the number of bachelors and the number of graduate which are closed. Therefore, bar chart will be more appropriate. 
+
+```{r}
+participant_data %>%
+  mutate(Education= fct_infreq(educationLevel)) %>%
+  ggplot(aes(x= Education)) +
+  geom_bar(fill= '#6897bb') +
+  geom_text(stat = 'count',
+           aes(label= paste0(stat(count), ', ', 
+                             round(stat(count)/sum(stat(count))*100, 
+                             1), '%')), vjust= -0.5, size= 3) +
+  labs(y= 'No. of\nResidents', title = "Distribution of Residents' Education Level") +
+  theme(axis.title.y= element_text(angle=0), axis.ticks.x= element_blank(),
+        panel.background= element_blank(), axis.line= element_line(color= 'grey'))
+```
+
+# 4.4 Factors that impact level of joviality 
+
+Lastly, author conduct  the diverging stacked bar chart by using *likert* to show the joviality level of different groups of participants. 
+
+It is a good function that allow user to put all factors into one page to compare. However, it is a bit confusing especially when the difference among different factors are not significant.
+
+For example when we tried to interpreter the insights of joviality in different interest groups, activity J,I and B look like having the same joviality level from the chart given by author, but actually they are different. It will be misleading, so we should use some other graph which could emphasis the difference and demonstrate the comparison with relevant figures. We could consider the change as below:
+
+
+```{r}
+ggplot(participant_data, 
+       aes(x= fct_rev(interestGroup), y= joviality)) +
+  stat_halfeye(adjust = .35,
+               width = .6,
+               color = '#20b2aa',
+               justification = -.15,
+               position = position_nudge(x = .12)) +
+  scale_x_discrete(expand= c(0.1, 0.1)) +
+  geom_hline(aes(yintercept = 0.5),
+             linetype= 'dashed',
+             color= '#f08080',
+             size= .6) +
+  coord_flip() +
+  labs(x = 'Interest Group',
+       title = 'Joviality Distribution in Different Interest Groups') +
+  theme(panel.background= element_blank(), axis.line= element_line(color= 'grey'),
+        axis.ticks.y = element_blank(),
+        panel.grid.major = element_line(size= 0.2, color = "grey"))
+
+```
+
+
+
+
+
