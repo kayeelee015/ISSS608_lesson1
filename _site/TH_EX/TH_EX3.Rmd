@@ -53,7 +53,7 @@ This can be resolved by preparing the dataframe for visualization, and then savi
 The following code chunk installs the required R packages and loads them onto RStudio environment.
 
 ```{r}
-packages = c('tidyverse', 'knitr', 'ggdist', 'scales', 'grid', 'gridExtra','formattable', 'patchwork', 'shiny','ggridges','gganimate','gifski','RColorBrewer','zoo')
+packages = c('tidyverse', 'knitr', 'ggdist', 'scales', 'grid', 'gridExtra','formattable', 'patchwork', 'shiny','ggridges','gganimate','gifski','RColorBrewer','zoo','plotly')
 
 for(p in packages){
   if(!require(p,character.only= T)){
@@ -87,38 +87,40 @@ According to the financial file, expenditure from residents can be categorized i
 ```{r}
 Food <- financial %>%
   filter(category == 'Food') %>%
-  select(Dates,amount) %>%
+  select(Dates,amount,participantId) %>%
   group_by(Dates) %>%
-  summarise(Daily_food = sum(amount))
-summary(Food)
+  summarise(Daily_food = sum(amount), group_size= length(participantId))
+
 ```
+
 
 ```{r}
 Education <- financial %>%
   filter(category == 'Education') %>%
-  select(Dates,amount) %>%
+  select(Dates,amount,participantId) %>%
   group_by(Dates) %>%
-  summarise(Daily_Education = sum(amount))
-summary(Education)
+  summarise(Daily_Education = sum(amount),group_size= length(participantId))
+
 ```
+
 
 ```{r}
 Recreation <- financial %>%
   filter(category == 'Recreation') %>%
-  select(Dates,amount) %>%
+  select(Dates,amount,participantId) %>%
   group_by(Dates) %>%
-  summarise(Daily_Education = sum(amount))
-summary(Recreation)
+  summarise(Daily_Recreation = sum(amount),group_size= length(participantId))
+
 ```
 
 
 ```{r}
 Shelter <- financial %>%
   filter(category == 'Shelter') %>%
-  select(Dates,amount) %>%
+  select(Dates,amount,participantId) %>%
   group_by(Dates) %>%
-  summarise(Daily_Education = sum(amount))
-summary(Shelter)
+  summarise(Daily_Shelter = sum(amount),group_size= length(participantId))
+
 ```
 
 
@@ -131,22 +133,78 @@ Dataframes of all expenditure are saved and read in RDS format to avoid uploadin
 
 saveRDS(Food, 'data/Food.rds')
 Food <- readRDS('data/Food.rds')
-head(Food)
 
 saveRDS(Education, 'data/Education.rds')
 Education <- readRDS('data/Education.rds')
-head(Education)
 
 saveRDS(Recreation, 'data/Recreation.rds')
 Recreation <- readRDS('data/Recreation.rds')
-head(Recreation)
 
 saveRDS(Shelter, 'data/Shelter.rds')
 Shelter <- readRDS('data/Shelter.rds')
-head(Shelter)
 
 ```
 
+# 3. Visualization and Insights
+
+### Movement of residents spending on food
+
+```{r}
+p1<-ggplot(Food, aes(x = Dates, y = Daily_food, 
+                      size = group_size, 
+                      colour = 'red')) +
+  geom_point(alpha = 0.7, 
+             show.legend = FALSE) +
+  scale_size(range = c(2, 12)) +
+  labs(title = 'Date: {frame_time}', 
+       x = 'Dates', 
+       y = 'Daily_food')+ ylim(-12500,-8000)+ transition_time(Dates) +
+  ease_aes('linear') 
+animate(p1, duration = 20)
+```
 
 
+### Movement of residents spending on Education
+```{r}
+p2<- ggplot(Education, aes(x = Dates, y = Daily_Education, 
+                      size = group_size)) +
+  geom_point(alpha = 0.7, 
+             show.legend = FALSE, colour = 'Green') +
+  scale_size(range = c(2, 12)) +
+  labs(title = 'Date: {frame_time}', 
+       x = ' Dates', 
+       y = ' Daily_Education') + transition_time(Dates) +
+  ease_aes('linear') 
 
+animate(p2, duration = 20)
+```
+
+### Movement of residents spending on Shelter
+```{r}
+p3<- ggplot(Shelter, aes(x = Dates, y = Daily_Shelter, 
+                      size = group_size)) +
+  geom_point(alpha = 0.7, 
+             show.legend = FALSE, colour = 'Blue') +
+  scale_size(range = c(2, 12)) +
+  labs(title = 'Date: {frame_time}', 
+       x = ' Dates', 
+       y = ' Daily_Shelter') + transition_time(Dates) +
+  ease_aes('linear') 
+
+animate(p3, duration = 20)
+```
+
+
+# 4. Conclusion
+
+**Education is the most struggling business.**
+
+The the animation of people daily expenditure on education, we can infer that less people spend money in education and the amount of money people spend on education is also getting much lower.
+
+**People spend a bit less on food, but industry still performs well.**
+
+The movement of amount that participants spending in eating remains in a range of 10k to 11k per day. Although there was a slight decrease when we compared with the amount at the beginning of this research, it is stilling in a healthy condition.
+
+**There is a significant improvement in real estate market.**
+
+According to the research, people spent less on rental in between of April 2022 and May 2022, but the market recovered rapidly in June 2022. It performed well in both revenue and customer size. 
