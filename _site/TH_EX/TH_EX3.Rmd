@@ -53,7 +53,7 @@ This can be resolved by preparing the dataframe for visualization, and then savi
 The following code chunk installs the required R packages and loads them onto RStudio environment.
 
 ```{r}
-packages = c('tidyverse', 'knitr', 'ggdist', 'scales', 'grid', 'gridExtra','formattable', 'patchwork', 'shiny','ggridges','gganimate','gifski','RColorBrewer','zoo','plotly')
+packages = c('tidyverse', 'knitr', 'ggdist', 'scales', 'grid', 'gridExtra','formattable', 'patchwork', 'shiny','ggridges','gganimate','gifski','RColorBrewer','zoo','plotly','reprex','gifski','png')
 
 for(p in packages){
   if(!require(p,character.only= T)){
@@ -89,7 +89,7 @@ Food <- financial %>%
   filter(category == 'Food') %>%
   select(Dates,amount,participantId) %>%
   group_by(Dates) %>%
-  summarise(Daily_food = sum(amount), group_size= length(participantId))
+  summarise(Daily_food = abs(sum(amount)), group_size= length(participantId))
 
 ```
 
@@ -99,7 +99,7 @@ Education <- financial %>%
   filter(category == 'Education') %>%
   select(Dates,amount,participantId) %>%
   group_by(Dates) %>%
-  summarise(Daily_Education = sum(amount),group_size= length(participantId))
+  summarise(Daily_Education = abs(sum(amount)),group_size= length(participantId))
 
 ```
 
@@ -109,7 +109,7 @@ Recreation <- financial %>%
   filter(category == 'Recreation') %>%
   select(Dates,amount,participantId) %>%
   group_by(Dates) %>%
-  summarise(Daily_Recreation = sum(amount),group_size= length(participantId))
+  summarise(Daily_Recreation = abs(sum(amount)),group_size= length(participantId))
 
 ```
 
@@ -119,7 +119,7 @@ Shelter <- financial %>%
   filter(category == 'Shelter') %>%
   select(Dates,amount,participantId) %>%
   group_by(Dates) %>%
-  summarise(Daily_Shelter = sum(amount),group_size= length(participantId))
+  summarise(Daily_Shelter = abs(sum(amount)),group_size= length(participantId))
 
 ```
 
@@ -158,7 +158,7 @@ p1<-ggplot(Food, aes(x = Dates, y = Daily_food,
   scale_size(range = c(2, 12)) +
   labs(title = 'Date: {frame_time}', 
        x = 'Dates', 
-       y = 'Daily_food')+ ylim(-12500,-8000)+ transition_time(Dates) +
+       y = 'Daily_food')+ ylim(8000,12500)+ transition_time(Dates) +
   ease_aes('linear') 
 animate(p1, duration = 20)
 ```
@@ -193,6 +193,7 @@ p3<- ggplot(Shelter, aes(x = Dates, y = Daily_Shelter,
 
 animate(p3, duration = 20)
 ```
+
 
 
 # 4. Conclusion
