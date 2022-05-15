@@ -93,8 +93,9 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2022-05-14" />
-  <meta property="article:created" itemprop="dateCreated" content="2022-05-14" />
+  <meta property="article:published" itemprop="datePublished" content="2022-05-15" />
+  <meta property="article:created" itemprop="dateCreated" content="2022-05-15" />
+  <meta name="article:author" content="Li Minqi" />
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
   <meta property="og:title" content="Take-home exercise3" />
@@ -111,7 +112,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","aauthor","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Take-home exercise3"]},{"type":"character","attributes":{},"value":["This article is to discuss the financial health of the city of Engagement, Ohio USA (VAST Challenge 2022). \n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Li Minqi"]},{"type":"character","attributes":{},"value":["https://www.linkedin.com/in/minqi-li/"]},{"type":"character","attributes":{},"value":["School of Computing and Information System"]},{"type":"character","attributes":{},"value":["https://example.com/spacelysprokets"]}]}]},{"type":"character","attributes":{},"value":["2022-05-14"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Take-home exercise3"]},{"type":"character","attributes":{},"value":["This article is to discuss the financial health of the city of Engagement, Ohio USA (VAST Challenge 2022). \n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Li Minqi"]},{"type":"character","attributes":{},"value":["https://www.linkedin.com/in/minqi-li/"]},{"type":"character","attributes":{},"value":["School of Computing and Information System"]},{"type":"character","attributes":{},"value":["https://example.com/spacelysprokets"]}]}]},{"type":"character","attributes":{},"value":["2022-05-15"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   
@@ -2473,7 +2474,7 @@ distill-header .nav a {
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Take-home exercise3","description":"This article is to discuss the financial health of the city of Engagement, Ohio USA (VAST Challenge 2022).","authors":[],"publishedDate":"2022-05-14T00:00:00.000+08:00"}
+{"title":"Take-home exercise3","description":"This article is to discuss the financial health of the city of Engagement, Ohio USA (VAST Challenge 2022).","authors":[{"author":"Li Minqi","authorURL":"https://www.linkedin.com/in/minqi-li/","affiliation":"School of Computing and Information System","affiliationURL":"https://example.com/spacelysprokets","orcidID":""}],"publishedDate":"2022-05-15T00:00:00.000+08:00","citationText":"Minqi, 2022"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2490,12 +2491,236 @@ distill-header .nav a {
 Engagement, Ohio USA (VAST Challenge 2022).</p></p>
 </div>
 
+<div class="d-byline">
+  Li Minqi <a href="https://www.linkedin.com/in/minqi-li/" class="uri">https://www.linkedin.com/in/minqi-li/</a> (School of
+Computing and Information System)<a href="https://example.com/spacelysprokets" class="uri">https://example.com/spacelysprokets</a>
+  
+<br />2022-05-15
+</div>
 
 <div class="d-article">
-<p>Distill is a publication format for scientific and technical writing,
-native to the web.</p>
-<p>Learn more about using Distill for R Markdown at <a href="https://rstudio.github.io/distill" class="uri">https://rstudio.github.io/distill</a>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h1 id="overview">1. Overview</h1>
+<h2 id="introduction">1.1 Introduction</h2>
+<p>In this take-home exercise, we will discuss the financial health of
+the city of Engagement and identify which businesses appear to be more
+prosperous or more struggling over the period covered by the data
+set.</p>
+<p>The data used in this exercise is from VAST Challenge 2022, and
+processed by RStudio. It is assumed that the volunteer participants are
+representative of the city’s population.</p>
+<h2 id="design-challenges">1.2 Design challenges</h2>
+<h3 id="challenge-1-how-to-joint-different-tables">Challenge 1: How to
+joint different tables</h3>
+<p>VAST Challenge 2022 provided a large number of data files. Upon
+review, out of total files, eleven files can used in this study and they
+all have similar primary keys, such as building ID and participant ID.
+To have an overview of all these data files, jointing tables and data
+cleaning are required to be performed in R for reproducibility.</p>
+<h3 id="challenge-2-how-to-handle-missing-value">Challenge 2: How to
+handle missing value</h3>
+<p>When we looked at the income data of participants, we found that not
+all participants have income for the whole period covered by the
+dataset. It will affect the output if we calculate the average income
+for specific industry or education level. Therefore, we will need to
+exclude the participants who do not have complete information.</p>
+<h3 id="challenge-3-how-to-handle-outliers">Challenge 3: How to handle
+outliers</h3>
+<p>From the dataset of expenditure, it is observed that some of spending
+are extremely high. However, outliers affect the effectiveness of
+distribution graphs, since the majority of the data points becomes
+visually trivial in the attempt to fit the ourliers. In view of this, we
+will exclude the outliers or transform the data set into
+percentiles.</p>
+<h3 id="challenge-4-raw-data-file-is-too-big-to-upload">Challenge 4: Raw
+Data File is too big to upload</h3>
+<p>The financial journal file used to derive income data is 80.7 MB,
+larger than the 50 MB size limit set by GitHub. Therefore, the raw data
+cannot be pushed to GitHub repository directly.</p>
+<p>This can be resolved by preparing the dataframe for visualization,
+and then saving it in RDS format. The raw data is not pushed or commited
+while only the saved RDS file is referenced for visualization, and
+pushed to GitHub repository</p>
+<h1 id="data-preparation">2. Data Preparation</h1>
+<h2 id="r-packages-installation">2.1 R packages installation</h2>
+<p>The following code chunk installs the required R packages and loads
+them onto RStudio environment.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="va">packages</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">&#39;tidyverse&#39;</span>, <span class="st">&#39;knitr&#39;</span>, <span class="st">&#39;ggdist&#39;</span>, <span class="st">&#39;scales&#39;</span>, <span class="st">&#39;grid&#39;</span>, <span class="st">&#39;gridExtra&#39;</span>,<span class="st">&#39;formattable&#39;</span>, <span class="st">&#39;patchwork&#39;</span>, <span class="st">&#39;shiny&#39;</span>,<span class="st">&#39;ggridges&#39;</span>,<span class="st">&#39;gganimate&#39;</span>,<span class="st">&#39;gifski&#39;</span>,<span class="st">&#39;RColorBrewer&#39;</span>,<span class="st">&#39;zoo&#39;</span><span class="op">)</span>
+
+<span class="kw">for</span><span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="va">packages</span><span class="op">)</span><span class="op">{</span>
+  <span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va">p</span>,character.only<span class="op">=</span> <span class="cn">T</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
+    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>
+  <span class="op">}</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">p</span>,character.only<span class="op">=</span><span class="cn">T</span><span class="op">)</span>
+<span class="op">}</span>
+</code></pre>
+</div>
+</div>
+<h2 id="import-datasets">2.2 Import Datasets</h2>
+<p>This article will use the dataset provided by <a href="https://vast-challenge.github.io/2022/"><strong>VAST Challenge
+2022</strong></a>. The code chunk below import data from the folder into
+R by using <a href="https://readr.tidyverse.org/reference/read_delim.html"><code>read_csv()</code></a>
+of <a href="https://readr.tidyverse.org/"><strong>readr</strong></a> and
+save it as an tibble data frame. In order to compare, we convert all
+timestemp from files into date formate.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="va">participants</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">&#39;Data/Participants.csv&#39;</span><span class="op">)</span>
+<span class="va">financial</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">&#39;Data/FinancialJournal.csv&#39;</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">mutate</span><span class="op">(</span>Dates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="va">timestamp</span>,format<span class="op">=</span><span class="st">&quot;%m/%d/%Y&quot;</span><span class="op">)</span><span class="op">)</span> 
+<span class="va">Apartments</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">&#39;Data/Apartments.csv&#39;</span><span class="op">)</span>
+<span class="va">Employers</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">&#39;Data/Employers.csv&#39;</span><span class="op">)</span>
+<span class="va">Pubs</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">&#39;Data/Pubs.csv&#39;</span><span class="op">)</span>
+<span class="va">Restaurants</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">&#39;Data/Restaurants.csv&#39;</span><span class="op">)</span>
+<span class="va">Schools</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">&#39;Data/Schools.csv&#39;</span><span class="op">)</span>
+</code></pre>
+</div>
+</div>
+<h2 id="data-wrangling">2.3 Data Wrangling</h2>
+<h3 id="expenditure">Expenditure</h3>
+<p>According to the financial file, expenditure from residents can be
+categorized into four areas, which are food, education, recreation and
+shelter. To find out the expenditure level of the residents, all
+categories of spending are summed up according to month.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="va">Food</span> <span class="op">&lt;-</span> <span class="va">financial</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">category</span> <span class="op">==</span> <span class="st">&#39;Food&#39;</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">select</span><span class="op">(</span><span class="va">Dates</span>,<span class="va">amount</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">group_by</span><span class="op">(</span><span class="va">Dates</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">summarise</span><span class="op">(</span>Daily_food <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">amount</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">Food</span><span class="op">)</span>
+</code></pre>
+</div>
+<pre><code>     Dates              Daily_food      
+ Min.   :2022-03-01   Min.   :-12342.4  
+ 1st Qu.:2022-06-21   1st Qu.:-10425.4  
+ Median :2022-10-12   Median : -9991.7  
+ Mean   :2022-10-12   Mean   :-10116.4  
+ 3rd Qu.:2023-02-01   3rd Qu.: -9940.0  
+ Max.   :2023-05-25   Max.   :  -319.4  </code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="va">Education</span> <span class="op">&lt;-</span> <span class="va">financial</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">category</span> <span class="op">==</span> <span class="st">&#39;Education&#39;</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">select</span><span class="op">(</span><span class="va">Dates</span>,<span class="va">amount</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">group_by</span><span class="op">(</span><span class="va">Dates</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">summarise</span><span class="op">(</span>Daily_Education <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">amount</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">Education</span><span class="op">)</span>
+</code></pre>
+</div>
+<pre><code>     Dates            Daily_Education 
+ Min.   :2022-03-01   Min.   :-28708  
+ 1st Qu.:2022-06-16   1st Qu.:-11423  
+ Median :2022-10-01   Median :-11423  
+ Mean   :2022-09-30   Mean   :-12576  
+ 3rd Qu.:2023-01-16   3rd Qu.:-11423  
+ Max.   :2023-05-01   Max.   :-11423  </code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="va">Recreation</span> <span class="op">&lt;-</span> <span class="va">financial</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">category</span> <span class="op">==</span> <span class="st">&#39;Recreation&#39;</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">select</span><span class="op">(</span><span class="va">Dates</span>,<span class="va">amount</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">group_by</span><span class="op">(</span><span class="va">Dates</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">summarise</span><span class="op">(</span>Daily_Education <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">amount</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">Recreation</span><span class="op">)</span>
+</code></pre>
+</div>
+<pre><code>     Dates            Daily_Education   
+ Min.   :2022-03-01   Min.   :-53706.1  
+ 1st Qu.:2022-06-21   1st Qu.:-18199.3  
+ Median :2022-10-12   Median : -7266.1  
+ Mean   :2022-10-12   Mean   :-11026.8  
+ 3rd Qu.:2023-02-01   3rd Qu.: -5975.5  
+ Max.   :2023-05-25   Max.   :  -185.1  </code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="va">Shelter</span> <span class="op">&lt;-</span> <span class="va">financial</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">category</span> <span class="op">==</span> <span class="st">&#39;Shelter&#39;</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">select</span><span class="op">(</span><span class="va">Dates</span>,<span class="va">amount</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">group_by</span><span class="op">(</span><span class="va">Dates</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">summarise</span><span class="op">(</span>Daily_Education <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">amount</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">Shelter</span><span class="op">)</span>
+</code></pre>
+</div>
+<pre><code>     Dates            Daily_Education     
+ Min.   :2022-03-01   Min.   :-1130394.7  
+ 1st Qu.:2022-04-11   1st Qu.: -558450.7  
+ Median :2022-08-01   Median : -558450.7  
+ Mean   :2022-08-21   Mean   : -472759.1  
+ 3rd Qu.:2022-12-16   3rd Qu.: -558450.7  
+ Max.   :2023-05-01   Max.   :    -300.9  </code></pre>
+</div>
+<h2 id="save-as-and-read-rds">2.4 Save as and Read RDS</h2>
+<p>Dataframes of all expenditure are saved and read in RDS format to
+avoid uploading large files to Git.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">Food</span>, <span class="st">&#39;data/Food.rds&#39;</span><span class="op">)</span>
+<span class="va">Food</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">&#39;data/Food.rds&#39;</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">Food</span><span class="op">)</span>
+</code></pre>
+</div>
+<pre><code># A tibble: 6 x 2
+  Dates      Daily_food
+  &lt;date&gt;          &lt;dbl&gt;
+1 2022-03-01    -12158.
+2 2022-03-02    -12342.
+3 2022-03-03    -12301.
+4 2022-03-04    -12248.
+5 2022-03-05    -11625.
+6 2022-03-06    -10822.</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">Education</span>, <span class="st">&#39;data/Education.rds&#39;</span><span class="op">)</span>
+<span class="va">Education</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">&#39;data/Education.rds&#39;</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">Education</span><span class="op">)</span>
+</code></pre>
+</div>
+<pre><code># A tibble: 6 x 2
+  Dates      Daily_Education
+  &lt;date&gt;               &lt;dbl&gt;
+1 2022-03-01         -28708.
+2 2022-04-01         -11423.
+3 2022-05-01         -11423.
+4 2022-06-01         -11423.
+5 2022-07-01         -11423.
+6 2022-08-01         -11423.</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">Recreation</span>, <span class="st">&#39;data/Recreation.rds&#39;</span><span class="op">)</span>
+<span class="va">Recreation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">&#39;data/Recreation.rds&#39;</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">Recreation</span><span class="op">)</span>
+</code></pre>
+</div>
+<pre><code># A tibble: 6 x 2
+  Dates      Daily_Education
+  &lt;date&gt;               &lt;dbl&gt;
+1 2022-03-01         -27921.
+2 2022-03-02         -26058.
+3 2022-03-03         -23645.
+4 2022-03-04         -23127.
+5 2022-03-05         -53706.
+6 2022-03-06         -38336.</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">Shelter</span>, <span class="st">&#39;data/Shelter.rds&#39;</span><span class="op">)</span>
+<span class="va">Shelter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">&#39;data/Shelter.rds&#39;</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">Shelter</span><span class="op">)</span>
+</code></pre>
+</div>
+<pre><code># A tibble: 6 x 2
+  Dates      Daily_Education
+  &lt;date&gt;               &lt;dbl&gt;
+1 2022-03-01       -1130395.
+2 2022-03-02         -27388.
+3 2022-03-03          -4862.
+4 2022-04-01        -558565.
+5 2022-04-11          -1053.
+6 2022-04-12           -301.</code></pre>
+</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
