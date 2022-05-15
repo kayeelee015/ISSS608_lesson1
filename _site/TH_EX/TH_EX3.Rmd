@@ -155,7 +155,7 @@ p1<-ggplot(Food, aes(x = Dates, y = Daily_food,
                       colour = 'red')) +
   geom_point(alpha = 0.7, 
              show.legend = FALSE) +
-  scale_size(range = c(2, 12)) +
+  scale_size(range = c(2, 20)) +
   labs(title = 'Date: {frame_time}', 
        x = 'Dates', 
        y = 'Daily_food')+ ylim(8000,12500)+ transition_time(Dates) +
@@ -170,7 +170,7 @@ p2<- ggplot(Education, aes(x = Dates, y = Daily_Education,
                       size = group_size)) +
   geom_point(alpha = 0.7, 
              show.legend = FALSE, colour = 'Green') +
-  scale_size(range = c(2, 12)) +
+  scale_size(range = c(2, 20)) +
   labs(title = 'Date: {frame_time}', 
        x = ' Dates', 
        y = ' Daily_Education') + transition_time(Dates) +
@@ -185,7 +185,7 @@ p3<- ggplot(Shelter, aes(x = Dates, y = Daily_Shelter,
                       size = group_size)) +
   geom_point(alpha = 0.7, 
              show.legend = FALSE, colour = 'Blue') +
-  scale_size(range = c(2, 12)) +
+  scale_size(range = c(2, 20)) +
   labs(title = 'Date: {frame_time}', 
        x = ' Dates', 
        y = ' Daily_Shelter') + transition_time(Dates) +
