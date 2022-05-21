@@ -8,7 +8,12 @@ author:
     affiliation: School of Computing and Information System
     affiliation_url: https://example.com/spacelysprokets
 date: "`r Sys.Date()`"
+navbar:
+    right:
+    - text: "Home"
+      href: index.html
 output: distill::distill_article
+
 ---
 
 ```{r setup, include=FALSE}
@@ -18,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE)
 ```
 
-# 1. Overview
+# 1. Overview 
 
 ## 1.1 Introduction
 
@@ -26,17 +31,17 @@ In this take-home exercise, we will discuss the financial health of the city of 
 
 The data used in this exercise is from VAST Challenge 2022, and processed by RStudio. It is assumed that the volunteer participants are representative of the city's population. 
 
-## 1.2 Design challenges
-
+## 1.2 Design challenges 
+ 
 ### Challenge 1: How to joint different tables 
 
 VAST Challenge 2022 provided a large number of data files. Upon review, out of total files, eleven files can used in this study and they all have similar primary keys, such as building ID and participant ID. To have an overview of all these data files, jointing tables and data cleaning are required to be performed in R for reproducibility. 
 
-### Challenge 2: How to handle missing value
+### Challenge 2: How to handle missing value 
 
 When we looked at the income data of participants, we found that not all participants have income for the whole period covered by the dataset. It will affect the output if we calculate the average income for specific industry or education level. Therefore, we will need to exclude the participants who do not have complete information. 
 
-### Challenge 3: How to handle outliers
+### Challenge 3: How to handle outliers 
 
 From the dataset of expenditure, it is observed that some of spending are extremely high. However, outliers affect the effectiveness of distribution graphs, since the majority of the data points becomes visually trivial in the attempt to fit the ourliers. In view of this, we will exclude the outliers or transform the data set into percentiles. 
 
