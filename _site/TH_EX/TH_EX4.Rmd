@@ -12,6 +12,13 @@ date: "`r Sys.Date()`"
 output: distill::distill_article
 
 ---
+# 1. Overview 
+
+## 1.1 Introduction
+
+In this take-home exercise, we will pick up two participant from the research to compare their daily routine on weekdays, such as sleep time, working hours as well ask dining schedule.
+
+The data used in this exercise is from VAST Challenge 2022, and processed by RStudio. It is assumed that the volunteer participants are representative of the city's population. 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
@@ -19,6 +26,12 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE,
                       message = FALSE)
 ```
+
+# 2. Data Preparation
+
+## 2.1 R packages installation
+
+The following code chunk installs the required R packages and loads them onto RStudio environment.
 
 ```{r}
 packages = c('scales', 'viridis', 
@@ -35,6 +48,10 @@ for(p in packages){
 }
 ```
 
+## 2.2 Import Datasets
+
+This article will use the dataset provided by [**VAST Challenge 2022**](https://vast-challenge.github.io/2022/). The code chunk below import a set of data files from the folder into R by using [`list.files()`] and save it as an tibble data frame. Since the data is too big to upload to github, we will convert the file into rds format after we filtered the data we needed for this study.
+
 ```{r echo=FALSE, eval=FALSE}
 logs_fread <- list.files(path = "Data/ActivityLogs/",
                   pattern = "*.csv", 
@@ -47,11 +64,12 @@ logs_edited <- logs_fread %>%
   mutate(yearmonth = as.yearmon(timestamp))
 ```
 
+## 2.3 Data Wrangling
+
 ```{r echo=FALSE, eval=FALSE}
 logs_March <- logs_edited %>%
   filter(yearmonth == "Mar 2022")
 ```
-
 
 ```{r echo=FALSE,eval=FALSE}
 select_par <- logs_March %>%
@@ -60,7 +78,11 @@ select_par <- logs_March %>%
   return(participantId,ave(availableBalance))
 ```
 
+### Participant
+
 Participant with ID 4 has the lowest average available balance in March, while participant with ID 18 has the highest. Therefore, we will select these two participants daily routine in March for comparison. 
+
+[`Participant 4`]
 
 ```{r echo=FALSE,eval=FALSE}
 participant4 <- logs_March %>%
@@ -76,6 +98,8 @@ write_rds(participant4,"data/ActivityLogs/participant4.rds")
 participant4 <-read_rds("data/ActivityLogs/participant4.rds")
 ```
 
+[`Participant 18`]
+
 ```{r echo=FALSE,eval=FALSE}
 participant18 <- logs_March %>%
   filter(participantId == 18) %>%
@@ -89,6 +113,8 @@ write_rds(participant18,"data/ActivityLogs/participant18.rds")
 ```{r}
 participant18 <-read_rds("data/ActivityLogs/participant18.rds")
 ```
+
+## 2.4 Data Transformation
 
 ```{r}
 transform_par4 <- participant4 %>%
@@ -104,7 +130,7 @@ transform_par18 <- participant18 %>%
   select(Dates,Timestamp,currentMode,hungerStatus,sleepStatus)
 ```
 
-wake up and sleep
+### Sleep time
 
 ```{r}
 Sleep_time <- transform_par4 %>%
@@ -141,6 +167,8 @@ Sleep_time <- new_transform_par4 %>%
 unique(new_transform_par4$currentMode)
 ```
 
+### Work time
+
 ```{r}
 Work_time <- new_transform_par4 %>%
   filter(currentMode == "AtWork" ) %>%
@@ -154,6 +182,8 @@ Work_time18 <- transform_par18 %>%
   group_by(Dates) %>%
   summarise(Start_work = min(Timestamp),End_work = max(Timestamp))
 ```
+
+### Transport time
 
 ```{r}
 Transport <- new_transform_par4 %>%
@@ -173,6 +203,8 @@ Transport18 <- transform_par18 %>%
 unique(new_transform_par4$hungerStatus)
 ```
 
+### Dining time
+
 ```{r}
 Dining <- new_transform_par4 %>%
   filter(hungerStatus == "JustAte" ) %>%
@@ -187,6 +219,7 @@ Dining18 <- transform_par18 %>%
   summarise(Ate_Breakfast = min(Timestamp),Ate_dinner = max(Timestamp))
 ```
 
+## 2.4 Data concatenate
 
 ```{r}
 Daily_Routine <- full_join(Sleep_time, Work_time, by = "Dates")
@@ -227,6 +260,8 @@ Y <- data.frame(id = Daily_Routine18$Dates, Daily_Routine18$Wake_time, Daily_Rou
 
 ```
 
+# 3 Visualisation 
+
 ```{r}
 v2 <- visielse(X, 
                informer = "mean", 
@@ -250,3 +285,17 @@ plot(v18,
      scal.unit.tps = 30, 
      main = "Participant 18")
 ```
+
+# 4 Conclusion
+
+**Participant 18 with higher money balance is well disciplined.**
+
+According to our data, we found that participant 18 does every thing almost at the same time every day during weekdays. 
+
+**Both participant has regular wake up and working schedule.**
+
+Both participant wake up and go to work punctually every day. 
+
+**Participant 4 spends a lot of time outside after work**
+
+According to the data, participant 4 usually would not go home directly after work. 
