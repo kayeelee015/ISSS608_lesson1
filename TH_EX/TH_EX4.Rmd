@@ -2,7 +2,7 @@
 title: "Take home exercise 4"
 description: |
   In this article, we will reveal the daily routines of two selected participant of the city of Engagement, Ohio USA. To address the purpose of this take-home exercise, I will be using ViSIElse and other appropriate visual analytics methods.
-  
+
 author:
   - name: Li Minqi 
     url: https://www.linkedin.com/in/minqi-li/
@@ -10,6 +10,7 @@ author:
     affiliation_url: https://example.com/spacelysprokets
 date: "`r Sys.Date()`"
 output: distill::distill_article
+
 ---
 
 ```{r setup, include=FALSE}
@@ -19,9 +20,156 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE)
 ```
 
+```{r}
+packages = c('scales', 'viridis', 
+             'lubridate', 'ggthemes', 
+             'gridExtra', 'tidyverse', 
+             'readxl', 'knitr',
+             'data.table', 'ViSiElse','zoo','hrbrthemes')
+
+for(p in packages){
+  if(!require(p,character.only= T)){
+    install.packages(p)
+  }
+  library(p,character.only=T)
+}
+```
+
+```{r echo=FALSE, eval=FALSE}
+logs_fread <- list.files(path = "Data/ActivityLogs/",
+                  pattern = "*.csv", 
+                  full.names = T) %>% 
+  map_df(~fread(.))
+```
+
+```{r echo=FALSE, eval=FALSE}
+logs_edited <- logs_fread %>%
+  mutate(yearmonth = as.yearmon(timestamp))
+```
+
+```{r echo=FALSE, eval=FALSE}
+logs_March <- logs_edited %>%
+  filter(yearmonth == "Mar 2022")
+```
+
+```{r echo=FALSE,eval=FALSE}
+write_rds(logs_March,"data/ActivityLogs/logs_March.rds")
+```
+
+```{r}
+logs_March <-read_rds("data/ActivityLogs/logs_March.rds")
+```
+
+```{r}
+select_par <- logs_March %>%
+  select(availableBalance,participantId) %>%
+  group_by(participantId) %>%
+  return(participantId,ave(availableBalance))
+```
+
+Participant with ID 4 has the lowest average available balance in March, while participant with ID 18 has the highest. Therefore, we will select these two participants daily routine in March for comparison. 
+
+```{r }
+participant4 <- logs_March %>%
+  filter(participantId == 4) %>%
+  select(timestamp,currentMode,hungerStatus,sleepStatus)
+```
+
+```{r}
+participant18 <- logs_March %>%
+  filter(participantId == 18) %>%
+  select(timestamp,currentMode,hungerStatus,sleepStatus)
+```
+
+```{r}
+transform_par4 <- participant4 %>%
+  mutate(Dates = as.numeric(format(as.Date(timestamp,format="%m/%d/%Y"), format = "%d"))) %>%
+  mutate(Timestamp = as.numeric(format(timestamp,format="%H"))*60+as.numeric(format(timestamp,format="%M"))) %>%
+  select(Dates,Timestamp,currentMode,hungerStatus,sleepStatus)
+```
 
 
 
+wake up and sleep
+
+```{r}
+Sleep_time <- transform_par4 %>%
+  filter(sleepStatus %in% c('Awake','PrepareToSleep')) %>%
+  group_by(Dates) %>%
+  summarise(Wake_time = min(Timestamp),Sleep_time = max(Timestamp))
+```
+
+March 11 is a noise, since participant slept after 00:00. We will exclude this day from the dataset.
+
+```{r}
+new_transform_par4 <- transform_par4[!transform_par4$Dates %in% c('11','1')]
+```
+
+```{r}
+Sleep_time <- new_transform_par4 %>%
+  filter(sleepStatus %in% c('Awake','PrepareToSleep')) %>%
+  group_by(Dates) %>%
+  summarise( Wake_time = min(Timestamp),Gotobed_time = max(Timestamp) )
+```
+
+```{r}
+unique(new_transform_par4$currentMode)
+```
+
+```{r}
+Work_time <- new_transform_par4 %>%
+  filter(currentMode == "AtWork" ) %>%
+  group_by(Dates) %>%
+  summarise(Start_work = min(Timestamp),End_work = max(Timestamp))
+```
+
+```{r}
+Transport <- new_transform_par4 %>%
+  filter(currentMode == "Transport" ) %>%
+  group_by(Dates) %>%
+  summarise(Leave_home = min(Timestamp),Go_home = max(Timestamp))
+```
+
+```{r}
+unique(new_transform_par4$hungerStatus)
+```
+
+```{r}
+Dining <- new_transform_par4 %>%
+  filter(hungerStatus == "JustAte" ) %>%
+  group_by(Dates) %>%
+  summarise(Ate_Breakfast = min(Timestamp),Ate_dinner = max(Timestamp))
+```
 
 
+```{r}
+Daily_Routine <- full_join(Sleep_time, Work_time, by = "Dates")
+Daily_Routine <- full_join(Daily_Routine, Transport, by = "Dates")
+Daily_Routine <- full_join(Daily_Routine, Dining, by = "Dates")
+```
 
+From the above table, we can infer that participant does not work during weekends. We only analyse the daily routine during weekdays, so we will remove all the weekends and offdays. 
+
+```{r}
+Daily_Routine <- Daily_Routine[complete.cases(Daily_Routine), ]
+```
+
+```{r}
+Daily_Routine <-lapply(Daily_Routine,as.numeric)
+Daily_Routine <-lapply(Daily_Routine,abs)
+#colnames(Daily_Routine)[0]<- "id"
+X <- data.frame(id = Daily_Routine$Dates, Daily_Routine$Wake_time, Daily_Routine$Ate_Breakfast,Daily_Routine$Start_work,Daily_Routine$Leave_home,Daily_Routine$End_work,Daily_Routine$Go_home,Daily_Routine$Ate_dinner,Daily_Routine$Gotobed_time)
+
+```
+
+```{r}
+v2 <- visielse(X, 
+               informer = "mean", 
+               doplot = F, 
+               pixel = 30)
+plot(v2, 
+     vp0w = 0.7, 
+     unit.tps = "min", 
+     scal.unit.tps = 30, 
+     main = "Participant 4")
+```
