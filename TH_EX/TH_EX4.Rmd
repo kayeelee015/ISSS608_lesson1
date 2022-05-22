@@ -52,15 +52,8 @@ logs_March <- logs_edited %>%
   filter(yearmonth == "Mar 2022")
 ```
 
+
 ```{r echo=FALSE,eval=FALSE}
-write_rds(logs_March,"data/ActivityLogs/logs_March.rds")
-```
-
-```{r}
-logs_March <-read_rds("data/ActivityLogs/logs_March.rds")
-```
-
-```{r}
 select_par <- logs_March %>%
   select(availableBalance,participantId) %>%
   group_by(participantId) %>%
@@ -69,16 +62,32 @@ select_par <- logs_March %>%
 
 Participant with ID 4 has the lowest average available balance in March, while participant with ID 18 has the highest. Therefore, we will select these two participants daily routine in March for comparison. 
 
-```{r }
+```{r echo=FALSE,eval=FALSE}
 participant4 <- logs_March %>%
   filter(participantId == 4) %>%
   select(timestamp,currentMode,hungerStatus,sleepStatus)
 ```
 
+```{r echo=FALSE,eval=FALSE}
+write_rds(participant4,"data/ActivityLogs/participant4.rds")
+```
+
 ```{r}
+participant4 <-read_rds("data/ActivityLogs/participant4.rds")
+```
+
+```{r echo=FALSE,eval=FALSE}
 participant18 <- logs_March %>%
   filter(participantId == 18) %>%
   select(timestamp,currentMode,hungerStatus,sleepStatus)
+```
+
+```{r echo=FALSE,eval=FALSE}
+write_rds(participant18,"data/ActivityLogs/participant18.rds")
+```
+
+```{r}
+participant18 <-read_rds("data/ActivityLogs/participant18.rds")
 ```
 
 ```{r}
