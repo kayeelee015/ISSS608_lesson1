@@ -97,7 +97,12 @@ transform_par4 <- participant4 %>%
   select(Dates,Timestamp,currentMode,hungerStatus,sleepStatus)
 ```
 
-
+```{r}
+transform_par18 <- participant18 %>%
+  mutate(Dates = as.numeric(format(as.Date(timestamp,format="%m/%d/%Y"), format = "%d"))) %>%
+  mutate(Timestamp = as.numeric(format(timestamp,format="%H"))*60+as.numeric(format(timestamp,format="%M"))) %>%
+  select(Dates,Timestamp,currentMode,hungerStatus,sleepStatus)
+```
 
 wake up and sleep
 
@@ -108,10 +113,21 @@ Sleep_time <- transform_par4 %>%
   summarise(Wake_time = min(Timestamp),Sleep_time = max(Timestamp))
 ```
 
-March 11 is a noise, since participant slept after 00:00. We will exclude this day from the dataset.
+```{r}
+Sleep_time18 <- transform_par18 %>%
+  filter(sleepStatus %in% c('Awake','PrepareToSleep')) %>%
+  group_by(Dates) %>%
+  summarise(Wake_time = min(Timestamp),Gotobed_time = max(Timestamp))
+```
+
+March 11 is a noise for participant 4, since participant slept after 00:00. We will exclude this day from the dataset.
 
 ```{r}
 new_transform_par4 <- transform_par4[!transform_par4$Dates %in% c('11','1')]
+```
+
+```{r}
+transform_par18 <- transform_par18[!transform_par18$Dates=='1']
 ```
 
 ```{r}
@@ -133,7 +149,21 @@ Work_time <- new_transform_par4 %>%
 ```
 
 ```{r}
+Work_time18 <- transform_par18 %>%
+  filter(currentMode == "AtWork" ) %>%
+  group_by(Dates) %>%
+  summarise(Start_work = min(Timestamp),End_work = max(Timestamp))
+```
+
+```{r}
 Transport <- new_transform_par4 %>%
+  filter(currentMode == "Transport" ) %>%
+  group_by(Dates) %>%
+  summarise(Leave_home = min(Timestamp),Go_home = max(Timestamp))
+```
+
+```{r}
+Transport18 <- transform_par18 %>%
   filter(currentMode == "Transport" ) %>%
   group_by(Dates) %>%
   summarise(Leave_home = min(Timestamp),Go_home = max(Timestamp))
@@ -150,11 +180,24 @@ Dining <- new_transform_par4 %>%
   summarise(Ate_Breakfast = min(Timestamp),Ate_dinner = max(Timestamp))
 ```
 
+```{r}
+Dining18 <- transform_par18 %>%
+  filter(hungerStatus == "JustAte" ) %>%
+  group_by(Dates) %>%
+  summarise(Ate_Breakfast = min(Timestamp),Ate_dinner = max(Timestamp))
+```
+
 
 ```{r}
 Daily_Routine <- full_join(Sleep_time, Work_time, by = "Dates")
 Daily_Routine <- full_join(Daily_Routine, Transport, by = "Dates")
 Daily_Routine <- full_join(Daily_Routine, Dining, by = "Dates")
+```
+
+```{r}
+Daily_Routine18 <- full_join(Sleep_time18, Work_time18, by = "Dates")
+Daily_Routine18 <- full_join(Daily_Routine18, Transport18, by = "Dates")
+Daily_Routine18 <- full_join(Daily_Routine18, Dining18, by = "Dates")
 ```
 
 From the above table, we can infer that participant does not work during weekends. We only analyse the daily routine during weekdays, so we will remove all the weekends and offdays. 
@@ -164,10 +207,23 @@ Daily_Routine <- Daily_Routine[complete.cases(Daily_Routine), ]
 ```
 
 ```{r}
+Daily_Routine18 <- Daily_Routine18[complete.cases(Daily_Routine18), ]
+```
+
+
+```{r}
 Daily_Routine <-lapply(Daily_Routine,as.numeric)
 Daily_Routine <-lapply(Daily_Routine,abs)
-#colnames(Daily_Routine)[0]<- "id"
+
 X <- data.frame(id = Daily_Routine$Dates, Daily_Routine$Wake_time, Daily_Routine$Ate_Breakfast,Daily_Routine$Start_work,Daily_Routine$Leave_home,Daily_Routine$End_work,Daily_Routine$Go_home,Daily_Routine$Ate_dinner,Daily_Routine$Gotobed_time)
+
+```
+
+```{r}
+Daily_Routine18 <-lapply(Daily_Routine18,as.numeric)
+Daily_Routine18 <-lapply(Daily_Routine18,abs)
+
+Y <- data.frame(id = Daily_Routine18$Dates, Daily_Routine18$Wake_time, Daily_Routine18$Ate_Breakfast,Daily_Routine18$Start_work,Daily_Routine18$Leave_home,Daily_Routine18$End_work,Daily_Routine18$Go_home,Daily_Routine18$Ate_dinner,Daily_Routine18$Gotobed_time)
 
 ```
 
@@ -181,4 +237,16 @@ plot(v2,
      unit.tps = "min", 
      scal.unit.tps = 30, 
      main = "Participant 4")
+```
+
+```{r}
+v18 <- visielse(Y, 
+               informer = "mean", 
+               doplot = F, 
+               pixel = 30)
+plot(v18, 
+     vp0w = 0.7, 
+     unit.tps = "min", 
+     scal.unit.tps = 30, 
+     main = "Participant 18")
 ```
