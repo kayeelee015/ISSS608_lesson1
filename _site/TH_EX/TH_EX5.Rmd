@@ -1,7 +1,6 @@
 ---
 title: "Take home exercise 5"
-description: |
-  A new article created using the Distill format.
+
 author:
   - name: Li Minqi 
     url: https://www.linkedin.com/in/minqi-li/
@@ -20,12 +19,20 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE)
 ```
 
+# 1. Overview 
+
+In this take-home exercise, we will observe and study the data from VAST Challenge 2022. By doing this, we will be able to characterized the distinct areas of the city and identify the busiest areas in Engagement. 
+
+# 2. Data Preparation
+
+## 2.1 Package installation 
+
+In this study, we will be using readr, sf, and tmap packages of R, so that we will need to install and launch before we start our data preparation. 
+
 ```{r}
-packages = c('scales', 'viridis', 
-             'lubridate', 'ggthemes', 
-             'gridExtra', 'tidyverse', 
-             'readxl', 'knitr',
-             'data.table', 'ViSiElse','zoo','hrbrthemes')
+packages = c('sf', 'tmap', 'tidyverse', 
+             'lubridate', 'clock', 
+             'sftime', 'rmarkdown')
 
 for(p in packages){
   if(!require(p,character.only= T)){
@@ -35,7 +42,117 @@ for(p in packages){
 }
 ```
 
+## 2.2 Import Data
+
+In the code chunk below, we will use read_sf() to parse the data files into R as sf data.frames.
+
+```{r}
+schools <- read_sf("data/wkt/Schools.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")  
+pubs <- read_sf("data/wkt/Pubs.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+apartments <- read_sf("data/wkt/Apartments.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+buildings <- read_sf("data/wkt/Buildings.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+employers <- read_sf("data/wkt/Employers.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+restaurants <- read_sf("data/wkt/Restaurants.csv", 
+                   options = "GEOM_POSSIBLE_NAMES=location")
+```
+
+## 2.3 Overview of Data
+
+The following code chunk allows us to have a overview of the building details. 
+
+```{r}
+print(buildings)
+```
+
+# 3. Composite map
+
+The code chunk below composite map by combining buildings according to the given location. Apartment, employers, pubs, restaurants, and schools are highlighted in different colors on the map. 
+
+```{r}
+tmap_mode("plot")
+tm_shape(buildings)+
+tm_polygons(col = "grey60",
+           size = 1,
+           border.col = "black",
+           border.lwd = 1) +
+tm_shape(employers) +
+  tm_dots(col = "red") +
+tm_shape(apartments) +
+  tm_dots(col = "lightblue") +
+tm_shape(pubs) +
+  tm_dots(col = "green") +
+tm_shape(restaurants) +
+  tm_dots(col = "blue") +
+tm_shape(schools) +
+  tm_dots(col = "yellow")
+tmap_mode("plot")
+```
+
+In order to find out the busiest location, we will create a hexagon binning map by using R. 
+
+In the code chunk below, we will use st_make_grid() to create haxegons.
+
+```{r}
+hex <- st_make_grid(buildings, 
+                    cellsize=100, 
+                    square=FALSE) %>%
+  st_sf() %>%
+  rowid_to_column('hex_id')
+plot(hex)
+```
 
 
+We selected a 15 days record of participants' activities to identify the location with the most population.
 
+```{r echo=FALSE,eval=FALSE}
+write_rds(logs_selected,"Data/rds/logs_selected.rds")
+```
 
+```{r echo=FALSE}
+logs_selected <-read_rds("data/rds/logs_selected.rds")
+```
+
+The code chunk below perform point in polygon overlay by using st_join().
+
+```{r}
+points_in_hex <- st_join(logs_selected, 
+                         hex, 
+                         join=st_within)
+#plot(points_in_hex, pch='.')
+```
+
+st_join() is used to count the number of event points in the hexagons.
+
+```{r}
+points_in_hex <- st_join(logs_selected, 
+                        hex, 
+                        join=st_within) %>%
+  st_set_geometry(NULL) %>%
+  count(name='pointCount', hex_id)
+head(points_in_hex)
+```
+
+Here were join these two tables by hex_id as the join ID.
+
+```{r}
+hex_combined <- hex %>%
+  left_join(points_in_hex, 
+            by = 'hex_id') %>%
+  replace(is.na(.), 0)
+```
+
+From the map we could tell that the arear with darker color is busier. 
+
+```{r}
+tm_shape(hex_combined %>%
+           filter(pointCount > 0))+
+  tm_fill("pointCount",
+          n = 8,
+          style = "quantile") +
+  tm_borders(alpha = 0.1)
+```
