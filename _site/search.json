@@ -3,18 +3,18 @@
     {
       "path": "about.html",
       "title": "About this site",
-      "description": "Some additional details about the website",
+      "description": "My name is Li Minqi, a student from MITB SMU. This site is my learning on visualisation by using R studio. On this website, you are able to find all my applications of visualisation skills that I learnt from class. All analysis are done by using data set provided by [**VAST Challenge 2022**](https://vast-challenge.github.io/2022/).\nTo know more about me, please find my CV from [`here`](Resume of Li Minqi (MITB, FTA , Aug 2021 cohort).pdf)",
       "author": [],
       "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2022-05-21T17:56:22+08:00"
+      "last_modified": "2022-05-31T15:05:59+08:00"
     },
     {
       "path": "index.html",
-      "title": "ISSS608_Visualisation",
-      "description": "Welcome to the website. I hope you enjoy it!\n",
+      "title": "Visualisation Learning",
+      "description": "Welcome to Kay's website. I hope you enjoy it!\n",
       "author": [],
       "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2022-05-29T22:47:12+08:00"
+      "last_modified": "2022-05-31T15:09:26+08:00"
     }
   ],
   "collections": []

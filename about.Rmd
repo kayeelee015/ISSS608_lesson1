@@ -1,7 +1,8 @@
 ---
 title: "About this site"
 description: |
-  Some additional details about the website
+  My name is Li Minqi, a student from MITB SMU. This site is my learning on visualisation by using R studio. On this website, you are able to find all my applications of visualisation skills that I learnt from class. All analysis are done by using data set provided by [**VAST Challenge 2022**](https://vast-challenge.github.io/2022/).
+  To know more about me, please find my CV from [`here`](Resume of Li Minqi (MITB, FTA , Aug 2021 cohort).pdf)
 ---
 
 ```{r setup, include=FALSE}
