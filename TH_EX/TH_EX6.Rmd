@@ -41,7 +41,7 @@ The following code chunk is to install and load the required packages for the an
 packages = c('igraph', 'tidygraph', 
              'ggraph', 'visNetwork', 
              'lubridate', 'clock',
-             'tidyverse', 'graphlayouts','dplyr')
+             'tidyverse', 'graphlayouts','dplyr','patchwork')
 
 for(p in packages){
   if(!require(p,character.only= T)){
@@ -105,9 +105,10 @@ participant_nodes<- read_csv('Data/Participants.csv')
 
 ## Wragling attributes
 
+
 In order to create network map, we will need nodes data and edges data. 
 
-Edges data table: 
+### Edges data table: 
 
 ```{r}
 socialnetwork_aggregated <- socialnetwork %>%
@@ -116,15 +117,73 @@ socialnetwork_aggregated <- socialnetwork %>%
   filter(participantIdFrom!=participantIdTo) %>%
   filter(Weight > 30) %>%
   ungroup()
+
 ```
 
-Nodes data table:
+### Nodes data table:
 
 ```{r}
 participant_nodes <- participant_nodes%>%
   filter(participant_nodes$participantId %in% socialnetwork_aggregated$participantIdTo, participant_nodes$participantId %in% socialnetwork_aggregated$participantIdFrom)
 ```
 
+There are 5 attribute under nodes. Here we generate the distribution of each attributes to find if any significant difference.
+
+```{r}
+Education <- participant_nodes %>%
+    mutate(Education= fct_infreq(educationLevel)) %>%
+  ggplot(aes(x= Education)) +
+  geom_bar(fill= "#69b3a2") +
+  labs(y= 'No. of\nResidents', subtitle = "Distribution of Residents' Education Level") +
+  theme(axis.title.y= element_text(angle=0), axis.ticks.x= element_blank(),
+        panel.background= element_blank(), axis.line= element_line(color= 'bisque3'),
+        plot.subtitle = element_text(color = "dimgrey", size = 12, face = "bold", hjust=0.5))
+
+Age <- ggplot(data= participant_nodes, 
+       aes(x= age)) +
+  geom_bar(fill= '#6eba6a') +
+  ylim(0, 50)  +
+  labs(y= 'No. of\nResidents', x= 'Age Group',
+       subtitle = "Distribution of Residents' Age") +
+  theme(axis.title.y= element_text(angle=0), axis.ticks.x= element_blank(),
+        panel.background= element_blank(), axis.line= element_line(color= 'bisque3'),
+        plot.subtitle = element_text(color = "dimgrey", size = 12, face = "bold", hjust=0.5))
+
+Joviality <-ggplot(data= participant_nodes, 
+       aes(x= joviality)) +
+  geom_histogram (binwidth=0.1, fill='#808de8', color="#e9ecef", alpha=0.9) +
+  labs(y= 'No. of\nResidents', x= 'Joviality',
+       subtitle = "Distribution of Residents' Joviality") +
+  theme(axis.title.y= element_text(angle=0), axis.ticks.x= element_blank(),
+        panel.background= element_blank(), axis.line= element_line(color= 'bisque3'),
+        plot.subtitle = element_text(color = "dimgrey", size = 12, face = "bold", hjust=0.5))
+
+Hobby <- participant_nodes %>%
+    mutate(Hobby= fct_infreq(interestGroup)) %>%
+  ggplot(aes(x= Hobby)) +
+  geom_bar(fill= "#69b3a2") +
+  labs(y= 'No. of\nResidents', subtitle = "Distribution of Residents' Interest Group") +
+  theme(axis.title.y= element_text(angle=0), axis.ticks.x= element_blank(),
+        panel.background= element_blank(), axis.line= element_line(color= 'bisque3'),
+        plot.subtitle = element_text(color = "dimgrey", size = 12, face = "bold", hjust=0.5))
+
+Household <- ggplot(data= participant_nodes, 
+       aes(x= householdSize)) +
+  geom_bar(fill= '#6eba6a') +
+  ylim(0, 500)  +
+  labs(y= 'No. of\nResidents', x= 'Household',
+       subtitle = "Distribution of Residents' household") +
+  theme(axis.title.y= element_text(angle=0), axis.ticks.x= element_blank(),
+        panel.background= element_blank(), axis.line= element_line(color= 'bisque3'),
+        plot.subtitle = element_text(color = "dimgrey", size = 12, face = "bold", hjust=0.5))
+
+(Education+Age)/(Joviality+Hobby)/Household + plot_annotation(
+    title ="Distribution of Weekend Participant's Attribute",
+    caption = 'Vast Challenge 2022'
+  ) &
+    theme(plot.title = element_text(size = 14, face = 'bold'))
+
+```
 
 To create network graph:
 
@@ -157,7 +216,7 @@ set_graph_style()
 ggraph(socialnetwork_graph, 
             layout = "nicely") + 
   geom_edge_link(aes(width=Weight), 
-                 alpha=0.2) +
+                 alpha=0.5) +
   scale_edge_width(range = c(0.1, 5)) +
   geom_node_point(aes(colour = as.character(householdSize)), 
                   size = 1)
