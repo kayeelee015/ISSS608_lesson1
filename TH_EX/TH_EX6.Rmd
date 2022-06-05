@@ -19,8 +19,147 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE)
 ```
 
+# Overview
+
+## Introduction 
+
+In this exercise, we will work on the bullet point 2 of challenge 1 of VAST Challenge 2022. We will reveal the patterns of community interactions of the city of Engagement, Ohio USA by using social network analysis approach. 
+
+* Consider the social activities in the community. What patterns do you see in the social networks in the town? 
+
+## Methodology
+
+Data set about participants' social network details will be used to analyse and visualize the network structure. I will create graph object data frames and manipulate them using functions of **dplyr**, **lubridate**,and **tidygraph**.Subsequently, I will build the network graph visualization, advanced graph visualization, and interactive network visualization by using **ggraph**,**tidygraph**, and **visNetwork** respectively. 
+
+# Data Preparation
+
+## Installing and Loading of Packages
+
+The following code chunk is to install and load the required packages for the analysis. 
+
+```{r}
+packages = c('igraph', 'tidygraph', 
+             'ggraph', 'visNetwork', 
+             'lubridate', 'clock',
+             'tidyverse', 'graphlayouts','dplyr')
+
+for(p in packages){
+  if(!require(p,character.only= T)){
+    install.packages(p)
+  }
+  library(p,character.only=T)
+}
+```
+
+## Loading Raw Data Set
+
+Due to the size of data set, I will use read_csv() to import the data files into R and convert the format into RDS thereafter as chunks showing below.
+
+The dataset has 7 million rows of value which is too much for following analysis. We will reduce the size before we start.According to the data, we can tell that the number of trip from the Jun 2022 onwards was moving up and down within a range. Therefore we will use data from May to Oct 2022 for our following study.
+
+Import data by using read_csv()
+
+```{r echo=FALSE,eval=FALSE}
+socialnetwork <- read_csv('Data/SocialNetwork.csv')%>%
+    filter(timestamp < '2022-11-01', timestamp > '2022-05-31')
+```
+
+Convert into RDS by using write_rds()
+
+```{r echo=FALSE,eval=FALSE}
+write_rds(socialnetwork,"data/rds/socialnetwork.rds")
+```
+
+Read RDS file by using read_rds()
+
+```{r echo=FALSE}
+socialnetwork<- read_rds('data/rds/socialnetwork.rds')
+```
+
+# Data Wrangling
+
+Before we start to clean the data, we will use glimpse() to examine the structure of the data frame. 
+
+```{r}
+glimpse(socialnetwork)
+```
+
+The format of the data looks fine for our further usage. By using the code chunk below, we are going to add a new column to indicate the day for each date. 
+
+```{r}
+socialnetwork<-socialnetwork %>%
+  mutate(Weekday = wday(timestamp,label = TRUE,abbr = FALSE))
+```
+
+The revised data frame structure: 
+
+```{r}
+glimpse(socialnetwork)
+```
+
+Read data from Participant file.
+
+```{r}
+participant_nodes<- read_csv('Data/Participants.csv')
+```
+
+## Wragling attributes
+
+In order to create network map, we will need nodes data and edges data. 
+
+Edges data table: 
+
+```{r}
+socialnetwork_aggregated <- socialnetwork %>%
+  group_by(participantIdFrom, participantIdTo) %>%
+    summarise(Weight = n()) %>%
+  filter(participantIdFrom!=participantIdTo) %>%
+  filter(Weight > 30) %>%
+  ungroup()
+```
+
+Nodes data table:
+
+```{r}
+participant_nodes <- participant_nodes%>%
+  filter(participant_nodes$participantId %in% socialnetwork_aggregated$participantIdTo, participant_nodes$participantId %in% socialnetwork_aggregated$participantIdFrom)
+```
 
 
+To create network graph:
 
+```{r}
+socialnetwork_graph <- graph_from_data_frame(socialnetwork_aggregated,vertices=participant_nodes)%>%
+  as_tbl_graph()
+socialnetwork_graph
+```
 
+# Visualisation and Analysis
 
+By hobby
+
+```{r}
+set_graph_style()
+ggraph(socialnetwork_graph, 
+            layout = "nicely") + 
+  geom_edge_link(aes(width=Weight), 
+                 alpha=0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = interestGroup), 
+                  size = 1)
+
+```
+
+By household
+
+```{r}
+set_graph_style()
+ggraph(socialnetwork_graph, 
+            layout = "nicely") + 
+  geom_edge_link(aes(width=Weight), 
+                 alpha=0.2) +
+  scale_edge_width(range = c(0.1, 5)) +
+  geom_node_point(aes(colour = as.character(householdSize)), 
+                  size = 1)
+
+```
