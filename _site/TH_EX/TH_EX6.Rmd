@@ -168,6 +168,7 @@ Household <- ggplot(data= participant_nodes,
 
 ```
 
+
 To further reduce the data size, we will group them into 8 tiles. 1st tile represents the lowest value and increase thereafter and then we will drop the participant under joviality tile 1. . 
 
 ```{r}
@@ -183,6 +184,7 @@ participants_to_keep <- participant_nodes %>%
 ```
 
 Due to too many variable of age and joviality, we will group up the age column and joviality. 
+
 ```{r}
 participants_to_keep$agebyrange = cut(participants_to_keep$age,c(0,20,40,60,80,100))
 
@@ -229,7 +231,6 @@ socialnetwork_graph <- graph_from_data_frame(socialnetwork_aggregated,vertices=n
 socialnetwork_graph
 ```
 
-
 # Visualisation and Analysis
 
 ## General Network Plot
@@ -242,7 +243,8 @@ g <- ggraph(socialnetwork_graph,
 g + theme_graph()
 
 ```
-By Education:
+
+### Education:
 
 According to the map above, we can see that there are still a lot of observation and the link are complex. Learning from peer, I decided to centralize the nodes first until we can see the map clearly.
 
@@ -258,6 +260,14 @@ socialnetwork_graph %>%
     theme_graph()
 ```
 
+Analysis of the plot:
+
+From the above plots, we can infer that most of education level in the town are bachelors and high school. Most of participant with Bachelors degree would be most likely within the same network.  
+
+### Interest group
+
+We would apply the same method on the attribute of interest group to see if there is any insight. 
+
 ```{r}
 socialnetwork_graph %>% 
     mutate(centrality = centrality_eigen()) %>%
@@ -270,7 +280,13 @@ socialnetwork_graph %>%
     theme_graph()
 ```
 
+Analysis of the plots:
+
+Participant with same interest would gather more frequently and have the same network with other participants who have the same interest, especially participants with interst I and G. 
+
 ## Weekend VS Weekday
+
+Under this section, we sould compare participants' joviality level on different days. 
 
 ```{r}
 set_graph_style()
