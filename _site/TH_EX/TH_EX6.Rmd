@@ -108,24 +108,7 @@ participant_nodes<- read_csv('Data/Participants.csv')
 
 In order to create network map, we will need nodes data and edges data. 
 
-### Edges data table: 
-
-```{r}
-socialnetwork_aggregated <- socialnetwork %>%
-  group_by(participantIdFrom, participantIdTo) %>%
-    summarise(Weight = n()) %>%
-  filter(participantIdFrom!=participantIdTo) %>%
-  filter(Weight > 30) %>%
-  ungroup()
-
-```
-
-### Nodes data table:
-
-```{r}
-participant_nodes <- participant_nodes%>%
-  filter(participant_nodes$participantId %in% socialnetwork_aggregated$participantIdTo, participant_nodes$participantId %in% socialnetwork_aggregated$participantIdFrom)
-```
+### Reduce data size
 
 There are 5 attribute under nodes. Here we generate the distribution of each attributes to find if any significant difference.
 
@@ -185,40 +168,78 @@ Household <- ggplot(data= participant_nodes,
 
 ```
 
+Due to too many variable of age and joviality, we will group them into 8 tiles. 1st tile represents the lowest value and increase thereafter. 
+
+```{r}
+participant_nodes <- participant_nodes%>%
+  mutate(agegroup = as.character(ntile(age, 8))) %>%
+  mutate(jovialitygroup = as.character(ntile(joviality, 8)))
+```
+
+```{r}
+Low_to_drop <- c("age", "joviality")
+
+participant_nodes <- participant_nodes[, !(names(participant_nodes) %in% Low_to_drop)]
+```
+
+To further reduce the data size, we will drop the participant under age tile 1. 
+
+```{r}
+participants_to_keep <- participant_nodes %>%
+  filter(jovialitygroup !=1)
+```
+
+### Edges data table: 
+
+```{r}
+socialnetwork_reduce <- socialnetwork %>%
+  filter(participantIdFrom %in% participants_to_keep$participantId, participantIdTo %in% participants_to_keep$participantId)
+```
+
+### Nodes data table:
+
+```{r}
+notes_reduce <- participants_to_keep %>%
+  filter(participantId %in% socialnetwork_reduce$participantIdFrom,participantId %in% socialnetwork_reduce$participantIdTo)
+```
+
+
+```{r}
+socialnetwork_aggregated <- socialnetwork_reduce %>%
+  group_by(participantIdFrom, participantIdTo,Weekday) %>%
+    summarise(Weight = n()) %>%
+  filter(participantIdFrom!=participantIdTo) %>%
+  filter(Weight > 10) %>%
+  ungroup()
+```
+
+Select Weight>10, so need to reduce the nodes again.
+
+```{r}
+notes_reduce <- notes_reduce %>%
+  filter(participantId %in% socialnetwork_aggregated$participantIdFrom,participantId %in% socialnetwork_aggregated$participantIdTo)
+```
+
+
 To create network graph:
 
 ```{r}
-socialnetwork_graph <- graph_from_data_frame(socialnetwork_aggregated,vertices=participant_nodes)%>%
+socialnetwork_graph <- graph_from_data_frame(socialnetwork_aggregated,vertices=notes_reduce)%>%
   as_tbl_graph()
 socialnetwork_graph
 ```
 
+
 # Visualisation and Analysis
 
-By hobby
-
+## General Network Plot
 ```{r}
-set_graph_style()
-ggraph(socialnetwork_graph, 
-            layout = "nicely") + 
-  geom_edge_link(aes(width=Weight), 
-                 alpha=0.2) +
-  scale_edge_width(range = c(0.1, 5)) +
-  geom_node_point(aes(colour = interestGroup), 
-                  size = 1)
+g <- ggraph(socialnetwork_graph,
+       layout = "nicely") +
+  geom_edge_link(aes()) +
+  geom_node_point(aes())
+
+g + theme_graph()
 
 ```
 
-By household
-
-```{r}
-set_graph_style()
-ggraph(socialnetwork_graph, 
-            layout = "nicely") + 
-  geom_edge_link(aes(width=Weight), 
-                 alpha=0.5) +
-  scale_edge_width(range = c(0.1, 5)) +
-  geom_node_point(aes(colour = as.character(householdSize)), 
-                  size = 1)
-
-```
