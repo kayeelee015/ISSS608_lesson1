@@ -242,4 +242,30 @@ g <- ggraph(socialnetwork_graph,
 g + theme_graph()
 
 ```
+By Education:
 
+According to the map above, we can see that there are still a lot of observation and the link are complex. Learning from peer, I decided to centralize the nodes first until we can see the map clearly.
+
+```{r}
+socialnetwork_graph %>% 
+    mutate(centrality = centrality_eigen()) %>%
+    filter(centrality > 0.2) %>%
+    ggraph(layout = 'nicely') + 
+    geom_edge_link(aes()) + 
+    geom_node_point(aes(size = centrality, colour = educationLevel)) + 
+    labs(title = 'Education Level', 
+         colour = "educationLevel") +
+    theme_graph()
+```
+
+```{r}
+socialnetwork_graph %>% 
+    mutate(centrality = centrality_eigen()) %>%
+    filter(centrality > 0.2) %>%
+    ggraph(layout = 'nicely') + 
+    geom_edge_link(aes()) + 
+    geom_node_point(aes(size = centrality, colour = interestGroup)) + 
+    labs(title = 'Interest Group', 
+         colour = "interestGroup") +
+    theme_graph()
+```
